@@ -71,37 +71,27 @@ function Remove-CourseUser {
     param (
         [Parameter(mandatory=$false, HelpMessage="Specify a file.")]
         [ValidateNotNullOrEmpty()]
-        [System.IO.FileInfo]$MyUserListFile = "$PSScriptRoot\MyLabFile.csv"
+        [System.IO.FileInfo]$DatabaseFile = "$PSScriptRoot\MyLabFile.csv"
     )
 
-    Begin {
-        if (-not $PSBoundParameters.ContainsKey('Confirm')) {
-            $ConfirmPreference = $PSCmdlet.SessionState.PSVariable.GetValue('ConfirmPreference')
-        }
-        if (-not $PSBoundParameters.ContainsKey('WhatIf')) {
-            $WhatIfPreference = $PSCmdlet.SessionState.PSVariable.GetValue('WhatIfPreference')
-        }
+    $MyUserList = Get-Content -Path $DatabaseFile | ConvertFrom-Csv
+    $RemoveUser = $MyUserList | Out-GridView -PassThru
+    $MyUserList = $MyUserList | Where-Object {
+        -not (
+            $_.Name -eq $RemoveUser.Name -and
+            $_.Age -eq $RemoveUser.Age -and
+            $_.Color -eq $RemoveUser.Color -and
+            $_.Id -eq $RemoveUser.Id
+        )
     }
 
-    Process {
-        $MyUserList = Get-Content -Path $MyUserListFile | ConvertFrom-Csv
-        $RemoveUser = $MyUserList | Out-GridView -PassThru
-        $MyUserList = $MyUserList | Where-Object {
-            -not (
-                $_.Name -eq $RemoveUser.Name -and
-                $_.Age -eq $RemoveUser.Age -and
-                $_.Color -eq $RemoveUser.Color -and
-                $_.Id -eq $RemoveUser.Id
-            )
-        }
-
-        # Execute change if based on confirmation and impact
-        if ($PSCmdlet.ShouldProcess([string]$RemoveUser.Name)) {
-            $ConfirmPreference = 'None'
-            Write-Host -ForegroundColor Red "Removing $($RemoveUser.Name)"
-            Set-Content -Value  ($MyUserList | ConvertTo-Csv -NoTypeInformation -UseQuotes Never) -Path $MyUserListFile -Confirm:$false
-        } else {
-            Write-Host -ForegroundColor Red "Did not remove user $($RemoveUser.Name)"
-        }
+    # Execute change if based on confirmation and impact
+    if ($PSCmdlet.ShouldProcess([string]$RemoveUser.Name)) {
+    #if ($PSCmdlet.ShouldProcess($DatabaseFile)) {
+        $ConfirmPreference = 'None'
+        Write-Output -ForegroundColor Red "Removing $($RemoveUser.Name)"
+        Set-Content -Value  ($MyUserList | ConvertTo-Csv -NoTypeInformation -UseQuotes Never) -Path $DatabaseFile -Confirm:$false
+    } else {
+        Write-Output -ForegroundColor Red "Did not remove user $($RemoveUser.Name)"
     }
 }
