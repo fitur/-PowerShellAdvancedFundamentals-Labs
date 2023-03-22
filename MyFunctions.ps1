@@ -99,7 +99,7 @@ function Remove-CourseUser {
         if ($PSCmdlet.ShouldProcess([string]$RemoveUser.Name)) {
             $ConfirmPreference = 'None'
             Write-Host -ForegroundColor Red "Removing $($RemoveUser.Name)"
-            Set-Content -Value  ($MyUserList | ConvertTo-Csv -NoTypeInformation) -Path $MyUserListFile -Confirm:$false
+            Set-Content -Value  ($MyUserList | ConvertTo-Csv -NoTypeInformation -UseQuotes Never) -Path $MyUserListFile -Confirm:$false
         } else {
             Write-Host -ForegroundColor Red "Did not remove user $($RemoveUser.Name)"
         }
