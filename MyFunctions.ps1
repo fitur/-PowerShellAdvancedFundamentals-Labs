@@ -1,12 +1,12 @@
 function GetUserData {
     [CmdletBinding()]
     param (
-        [Parameter(mandatory=$true)]
-        [System.IO.FileInfo]$InputFile
+        [Parameter(mandatory=$false)]
+        [System.IO.FileInfo]$MyUserListFile = "$PSScriptRoot\MyLabFile.csv"
     )
     #$MyUserListFile = "$PSScriptRoot\MyLabFile.csv"
     #$CSV = Import-Csv -Path $MyUserListFile
-    $CSV = Import-Csv -Path $InputFile
+    $CSV = Import-Csv -Path $MyUserListFile
     return $CSV
 }
 
@@ -15,13 +15,14 @@ function Get-CourseUser {
     param (
         [Parameter(mandatory=$false)]
         [String]$Name,
+
         [Parameter(mandatory=$false)]
         [int]$OlderThan
     )
     
     begin {
         # Get user data from helper function
-        $UserData = GetUserData -InputFile "C:\Git\-PowerShellAdvancedFundamentals-Labs\MyLabFile.csv"
+        $UserData = GetUserData
     }
     
     process {
@@ -47,4 +48,42 @@ function Get-CourseUser {
         # Return data
         return $UserData
     }
+}
+
+function Add-CourseUser {
+    [CmdletBinding()]
+    param (
+        [Parameter(mandatory=$false, HelpMessage="Specify a file.")]
+        [ValidateNotNullOrEmpty()]
+        [System.IO.FileInfo]$DatabaseFile = "$PSScriptRoot\MyLabFile.csv",
+
+        [Parameter(mandatory=$true, HelpMessage="Specify a first and last name.")]
+        [ValidateNotNullOrEmpty()]
+        [string]$Name,
+
+        [Parameter(mandatory=$true, HelpMessage="Specify an age in digits.")]
+        [ValidateNotNullOrEmpty()]
+        [int]$Age,
+
+        [Parameter(mandatory=$true, HelpMessage="Specify an a color, either red, green, blue or yellow.")]
+        [ValidateSet('red','green','blue','yellow')]
+        [string]$Color,
+
+        [Parameter(mandatory=$false, Helpmessage="Specify a user ID in digits.")]
+        [ValidateNotNullOrEmpty()]
+        [string]$UserID = (Get-Random -Minimum 10 -Maximum 100000)
+    )
+    
+    # Read file content if exist else initialize
+    if (-not (Test-Path -Path $DatabaseFile)) {
+        Set-Content -Value "Name,Age,Color,Id" -Path $DatabaseFile
+    }
+    $NewCSv = Get-Content $DatabaseFile -Raw
+
+    # Add input to variable
+    $MyCsvUser = "$Name,$Age,{0},{1}" -f $Color, $UserID
+
+    # Add variable to 
+    $NewCSv += $MyCsvUser
+    Set-Content -Value $NewCSv -Path $DatabaseFile
 }
