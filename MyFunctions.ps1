@@ -71,7 +71,7 @@ function Remove-CourseUser {
     param (
         [Parameter(mandatory=$false, HelpMessage="Specify a file.")]
         [ValidateNotNullOrEmpty()]
-        [System.IO.FileInfo]$MyUserListFile = "$PSScriptRoot\MyLabFile2.csv"
+        [System.IO.FileInfo]$MyUserListFile = "$PSScriptRoot\MyLabFile.csv"
     )
 
     Begin {
@@ -97,26 +97,11 @@ function Remove-CourseUser {
 
         # Execute change if based on confirmation and impact
         if ($PSCmdlet.ShouldProcess([string]$RemoveUser.Name)) {
-            Set-Content -Value $MyUserList -Path $MyUserListFile
+            $ConfirmPreference = 'None'
+            Write-Host -ForegroundColor Red "Removing $($RemoveUser.Name)"
+            Set-Content -Value  ($MyUserList | ConvertTo-Csv -NoTypeInformation) -Path $MyUserListFile -Confirm:$false
         } else {
-            Write-Host "Did not remove user $($RemoveUser.Name)"
+            Write-Host -ForegroundColor Red "Did not remove user $($RemoveUser.Name)"
         }
-    }
-}
-
-function Test-ShouldProcess {
-    [CmdletBinding(
-        SupportsShouldProcess,
-        ConfirmImpact = 'High'
-    )]
-    param()
-
-    Write-Host "testing"
-
-    if ($Force -or $PSCmdlet.ShouldProcess("ShouldProcess?")) {
-        Write-Verbose ('[{0}] Reached command' -f $MyInvocation.MyCommand)
-        # Variable scope ensures that parent session remains unchanged
-        $ConfirmPreference = 'None'
-        Write-Output "Some Action"
     }
 }
