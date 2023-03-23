@@ -32,8 +32,19 @@ function GetUserData {
         [Parameter(mandatory=$false)]
         [System.IO.FileInfo]$MyUserListFile = "$PSScriptRoot\MyLabFile.csv"
     )
-    $MyUserList = Get-Content -Path $MyUserListFile | ConvertFrom-Csv
-    return $MyUserList
+    
+    try {
+        $MyUserList = Get-Content -Path $MyUserListFile -ErrorAction Stop | ConvertFrom-Csv
+    }
+    catch [System.Management.Automation.ItemNotFoundException] {
+        Write-Error "Hittade inte filen"
+    }
+    catch {
+        Write-Error "Generellt fel"
+    }
+
+    #return $MyUserList
+    Write-Output $MyUserList
 }
 
 function Get-CourseUser {
@@ -134,7 +145,8 @@ function Confirm-CourseID {
     $UserData = GetUserData
     $UserData | ForEach-Object {
         if ($_.Id -notmatch '^\d+$') {
-            Write-Output "$($_.Name) has faulty ID: $($_.Id)"
+            #Write-Output "$($_.Name) has faulty ID: $($_.Id)"
+            Write-Error "$($_.Name) has faulty ID: $($_.Id)"
         }
     }
 }
