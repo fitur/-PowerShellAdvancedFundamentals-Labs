@@ -138,3 +138,44 @@ function Confirm-CourseID {
         }
     }
 }
+
+function Get-JSONStuff {
+    param (
+        $URI = "https://jsonplaceholder.typicode.com/posts/12"
+    )
+    Invoke-RestMethod -Uri $URI
+}
+
+function Post-JSONStuff {
+    param (
+        $URI = "https://jsonplaceholder.typicode.com/posts",
+        $Message
+    )
+
+    $Body = @{
+        title = 'post'
+        body = $Message
+        userId = 1
+    } | ConvertTo-Json
+    
+
+    Invoke-RestMethod -Method Post -ContentType 'application/json' -Body $Body -Uri $URI
+}
+
+function GetCDs {
+    param (
+        $URI = 'https://www.w3schools.com/xml/cd_catalog.xml'
+    )
+    (Invoke-RestMethod -Uri $URI).CATALOG.CD
+}
+
+function Select-CDInfoAsJson {
+    [CmdletBinding()]
+    param (
+        # Parameter help description
+        [Parameter(ValueFromPipeline)]
+        $CD
+    )
+
+    Write-Output $CD | Select-Object TITLE,ARTIST | ConvertTo-Json
+}
