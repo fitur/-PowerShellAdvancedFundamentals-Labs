@@ -49,7 +49,8 @@ function Get-CourseUser {
     )
     
     # When Name might be unspecified, Where-Object matches all, else only specified
-    return GetUserData | Where-Object {($_.Name -match $Name) -and ($_.Age -gt $OlderThan)}
+    $Result = GetUserData
+    Write-Output $Result | Where-Object {($_.Name -match $Name) -and ($_.Age -gt $OlderThan)}
 }
 
 function Add-CourseUser {
@@ -61,6 +62,7 @@ function Add-CourseUser {
 
         [Parameter(mandatory=$true, HelpMessage="Specify a first and last name.")]
         [ValidateNotNullOrEmpty()]
+        [ValidatePattern('^[A-Z][\w\-\s]*$', ErrorMessage = 'Name is in an incorrect format', Options = 'None')]
         [string]$Name,
 
         [Parameter(mandatory=$true, HelpMessage="Specify an age in digits.")]
@@ -122,5 +124,17 @@ function Remove-CourseUser {
         Set-Content -Value  ($MyUserList | ConvertTo-Csv -NoTypeInformation -UseQuotes Never) -Path $DatabaseFile -Confirm:$false
     } else {
         Write-Output -ForegroundColor Red "Did not remove user $($RemoveUser.Name)"
+    }
+}
+
+function Confirm-CourseID {
+    param (
+        
+    )
+    $UserData = GetUserData
+    $UserData | ForEach-Object {
+        if ($_.Id -notmatch '^\d+$') {
+            Write-Output "$($_.Name) has faulty ID: $($_.Id)"
+        }
     }
 }
