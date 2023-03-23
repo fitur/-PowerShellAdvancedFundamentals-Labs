@@ -164,6 +164,7 @@ function Post-JSONStuff {
 
 function GetCDs {
     param (
+        [ValidateNotNullOrEmpty()]
         $URI = 'https://www.w3schools.com/xml/cd_catalog.xml'
     )
     (Invoke-RestMethod -Uri $URI).CATALOG.CD
