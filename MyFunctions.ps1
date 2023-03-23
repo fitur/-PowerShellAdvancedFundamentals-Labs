@@ -6,6 +6,25 @@ enum ColorEnum {
 }
 
 ###
+class User {
+    [string] $Name
+    [int] $Age
+    [ColorEnum] $Color 
+    [int] $Id
+
+    User([String]$Name, [int]$Age, [ColorEnum]$Color, [int]$Id) {
+        $This.Name = $Name
+        $This.Age = $Age
+        $This.Color = $Color
+        $This.Id = $Id
+    }
+
+    [string] ToString() {
+        Return '{0},{1},{2},{3}' -f $This.Name, $This.Age, $This.Color, $This.Id
+    }
+}
+
+###
 
 function GetUserData {
     [CmdletBinding()]
@@ -66,7 +85,8 @@ function Add-CourseUser {
     $NewCSv = Get-Content $MyUserListFile -Raw
 
     # Add input to variable
-    $MyCsvUser = "$Name,$Age,{0},{1}" -f $Color, $UserID
+    $MyNewUser = [User]::new($Name, $Age, $Color, $UserID)
+    $MyCsvUser = $MyNewUser.ToString()
 
     # Add variable to user list
     $NewCSv += $MyCsvUser
