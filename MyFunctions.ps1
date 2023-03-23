@@ -1,3 +1,12 @@
+enum ColorEnum {
+    red
+    green
+    blue
+    yellow
+}
+
+###
+
 function GetUserData {
     [CmdletBinding()]
     param (
@@ -40,8 +49,8 @@ function Add-CourseUser {
         [int]$Age,
 
         [Parameter(mandatory=$true, HelpMessage="Specify an a color, either red, green, blue or yellow.")]
-        [ValidateSet('red','green','blue','yellow')]
-        [string]$Color,
+        [ValidateNotNullOrEmpty()]
+        [ColorEnum]$Color,
 
         [Parameter(mandatory=$false, Helpmessage="Specify a user ID in digits.")]
         [ValidateNotNullOrEmpty()]
